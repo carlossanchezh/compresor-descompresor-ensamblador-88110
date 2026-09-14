@@ -1,0 +1,1306 @@
+LEA: MACRO (reg, ETIQ)
+ or reg, r0, low(ETIQ)
+ or.u reg, reg, high(ETIQ)
+ ENDMACRO
+ 
+LOAD: MACRO (reg, ETIQ)
+ LEA (reg, ETIQ)
+ ld reg, reg, r0
+ ENDMACRO
+
+PUSH: MACRO (ra)
+ subu r30, r30, 4
+ st ra, r30, r0
+ ENDMACRO
+
+POP: MACRO(ra)
+ ld ra, r30, 0
+ addu r30, r30, 4
+ ENDMACRO
+ 
+DBNZ: MACRO (reg, ETIQ)
+ sub reg, reg, 1      
+ cmp r7,reg,0
+ bb1 eq,r7,ETIQ 
+ ENDMACRO
+
+org 0x00
+br ppalV
+
+
+org 0x2000
+cadena: data "Esto es una prueba de LongCad\0"
+cadena2: data "Esto es una prueba de CoincidenCad\0"
+C: data "_" 
+REF: data  "AAAABBBBCCCCDDDDEEEE_Fin.__.\0"
+from: data 4
+to: data 25
+org 0x3000
+;PRUEBA LongCad
+ppalLC: 
+	or r30, r0, 0x9000
+	or r31, r30, r30 ;puntero r31
+	LEA (r20, cadena) ; se inicializa la cadena en r20
+	PUSH (r20) ; se mete la cadena en la pila apuntada por r30
+	bsr LongCad
+	
+	addu r30,r30,4; se devuelve r30 a su estado anterior con el puntero
+	stop
+	
+org 0x3100
+;PRUEBA BuscaCar
+ppalBC:
+	or r30, r0, 0x9000
+	or r31, r30, r30
+	LOAD (r4, C) ; or r11, r0, 0x5F ; igual a "_"
+	LEA (r20, REF)
+	LOAD (r3, from) ; or r12, r0, 4
+	LOAD (r2, to) ; or r13, r0, 25
+	PUSH (r2) ; to
+	PUSH (r3) ; from
+	PUSH (r20) ; REF
+	PUSH (r4) ; C
+	bsr BuscaCar
+
+	addu r30, r30, 16
+	stop
+
+org 0x3500
+;PRUEBA CoincidenCad
+ppalCC: 
+	or r30, r0, 0x9000
+	or r31, r30, r30 ;puntero r31
+	LEA (r20, cadena) ; se inicializa la cadena en r20
+	LEA (r21, cadena2); se inicializa la cadena2 en r21
+	PUSH (r20) ; se mete la cadena en la pila apuntada por r30,4
+	PUSH (r21) ; se mete la cadena2 en la pila apuntada por r30
+	bsr CoincidenCad
+
+	addu r30,r30,8; se devuelve r30 a su estado anterior con el puntero
+	stop
+
+org 0x4000
+;PRUEBA PoneBitA1
+ppalPB:
+	or r30, r0, 0x9000
+	or r31, r30, r30
+	or r4,r0,r0
+	addu r4,r4,4
+	or r1, r0, low(0x00)     ; Carga la parte baja del valor 
+	or.u r1, r1, high(0x00)  ; Carga la parte alta del valor 
+	or r21,r0,0x1000
+	st r1,r21,r0;
+	PUSH (r4) ; NumBit
+	PUSH (r21) ; dirZonaCB
+	bsr PoneBitA1
+	addu r30, r30, 8
+	or r4,r0,r0
+	addu r4,r4,2
+	PUSH (r4) ; NumBit
+	PUSH (r21) ; dirZonaCB
+	bsr PoneBitA1
+	addu r30, r30, 8
+	or r4,r0,r0
+	or r1, r0, low(0xAAA1)     ; Carga la parte baja del valor 
+	or.u r1, r1, high(0xAAA1)  ; Carga la parte alta del valor
+	or r21,r0,0x1000
+	st r1,r21,r0;
+	addu r4,r4,3
+	PUSH (r4) ; NumBit
+	PUSH (r21) ; dirZonaCB
+	bsr PoneBitA1
+	addu r30, r30, 8
+	or r4,r0,r0
+	or r1, r0, low(0x01AAA1)     ; Carga la parte baja del valor 
+	or.u r1, r1, high(0x01AAA1)  ; Carga la parte alta del valor
+	or r21,r0,0x1000
+	st r1,r21,r0;
+	addu r4,r4,12
+	PUSH (r4) ; NumBit
+	PUSH (r21) ; dirZonaCB
+	bsr PoneBitA1
+	addu r30, r30, 8
+	or r4,r0,r0
+	addu r4,r4,0
+	PUSH (r4) ; NumBit
+	PUSH (r21) ; dirZonaCB
+	bsr PoneBitA1
+	addu r30, r30, 8
+	or r1, r0, low(0x00112233)     ; Carga la parte baja del valor 
+	or.u r1, r1, high(0x00112233)  ; Carga la parte alta del valor
+	or r21,r0,0x1000
+	st r1,r21,r0;
+	or r2, r0, low(0x44556677)     ; Carga la parte baja del valor 
+	or.u r2, r2, high(0x44556677)  ; Carga la parte alta del valor
+	or r21,r0,0x1004
+	st r2,r21,r0;
+	or r3, r0, low(0x88991011)     ; Carga la parte baja del valor 
+	or.u r3, r3, high(0x88991011)  ; Carga la parte alta del valor
+	or r21,r0,0x1008
+	st r3,r21,r0;
+	or r4, r0, low(0x12131415)     ; Carga la parte baja del valor 
+	or.u r4, r4, high(0x12131415)  ; Carga la parte alta del valor
+	or r21,r0,0x100C
+	st r4,r21,r0;
+	or r5, r0, low(0x16171819)     ; Carga la parte baja del valor 
+	or.u r5, r5, high(0x16171819)  ; Carga la parte alta del valor
+	or r21,r0,0x1010
+	st r5,r21,r0;
+	or r6, r0, low(0x20212223)     ; Carga la parte baja del valor 
+	or.u r6, r6, high(0x20212223)  ; Carga la parte alta del valor
+	or r21,r0,0x1014
+	st r6,r21,r0;
+	or r7, r0, low(0x24252627)     ; Carga la parte baja del valor 
+	or.u r7, r7, high(0x24252627)  ; Carga la parte alta del valor
+	or r21,r0,0x1018
+	st r7,r21,r0;
+	or r9, r0, low(0x28293031)     ; Carga la parte baja del valor 
+	or.u r9, r9, high(0x28293031)  ; Carga la parte alta del valor
+	or r21,r0,0x101C
+	st r9,r21,r0;
+	or r10, r0, low(0x32333435)     ; Carga la parte baja del valor 
+	or.u r10, r10, high(0x32333435)  ; Carga la parte alta del valor
+	or r21,r0,0x1020
+	st r10,r21,r0;
+	or r4,r0,r0
+	addu r4,r4,47
+	or r21,r0,0x1000
+	PUSH (r4) ; NumBit
+	PUSH (r21) ; dirZonaCB
+	bsr PoneBitA1
+	addu r30, r30, 8 
+	or r4,r0,r0
+	addu r4,r4,269
+	or r21,r0,0x1000
+	PUSH (r4) ; NumBit
+	PUSH (r21) ; dirZonaCB
+	bsr PoneBitA1; 
+	addu r30, r30, 8
+	stop 
+	stop
+	
+org 0x5000
+;PRUEBA LeeBit
+ppalLB:
+	or r30, r0, 0x9000
+	or r31, r30, r30
+	or r4,r0,r0
+	addu r4,r4,2
+	or r1, r0, low(0x54)     ; Carga la parte baja del valor 
+	or.u r1, r1, high(0x54)  ; Carga la parte alta del valor 
+	or r21,r0,0x1100
+	st r1,r21,r0;
+	PUSH (r4) ; NumBit
+	PUSH (r21) ; dirZonaCB
+	bsr LeeBit ; 
+	addu r30, r30, 8
+	or r4,r0,r0
+	addu r4,r4,6
+	PUSH (r4) ; NumBit
+	PUSH (r21) ; dirZonaCB
+	bsr LeeBit; 
+	addu r30, r30, 8
+	or r4,r0,r0
+	or r1, r0, low(0xAAA1)     ; Carga la parte baja del valor 
+	or.u r1, r1, high(0xAAA1)  ; Carga la parte alta del valor
+	or r21,r0,0x1100
+	st r1,r21,r0;
+	addu r4,r4,0
+	PUSH (r4) ; NumBit
+	PUSH (r21) ; dirZonaCB
+	bsr LeeBit;
+	addu r30, r30, 8
+	addu r4,r4,9
+	PUSH (r4) ; NumBit
+	PUSH (r21) ; dirZonaCB
+	bsr LeeBit ;
+	addu r30, r30, 8
+	or r4,r0,r0
+	or r1, r0, low(0x01AAA1)     ; Carga la parte baja del valor 
+	or.u r1, r1, high(0x01AAA1)  ; Carga la parte alta del valor
+	or r21,r0,0x1100
+	st r1,r21,r0;
+	addu r4,r4,12
+	PUSH (r4) ; NumBit
+	PUSH (r21) ; dirZonaCB
+	bsr LeeBit; 
+	addu r30, r30, 8
+	or r4,r0,r0
+	addu r4,r4,2
+	PUSH (r4) ; NumBit
+	PUSH (r21) ; dirZonaCB
+	bsr LeeBit ; 
+	addu r30, r30, 8
+	or r4,r0,r0
+	addu r4,r4,16
+	PUSH (r4) ; NumBit
+	PUSH (r21) ; dirZonaCB
+	bsr LeeBit; 
+	addu r30, r30, 8
+	or r1, r0, low(0x00112233)     ; Carga la parte baja del valor 
+	or.u r1, r1, high(0x00112233)  ; Carga la parte alta del valor
+	or r21,r0,0x1100
+	st r1,r21,r0;
+	or r2, r0, low(0x44556677)     ; Carga la parte baja del valor 
+	or.u r2, r2, high(0x44556677)  ; Carga la parte alta del valor
+	or r21,r0,0x1104
+	st r2,r21,r0;
+	or r3, r0, low(0x88991011)     ; Carga la parte baja del valor 
+	or.u r3, r3, high(0x88991011)  ; Carga la parte alta del valor
+	or r21,r0,0x1108
+	st r3,r21,r0;
+	or r4, r0, low(0x12131415)     ; Carga la parte baja del valor 
+	or.u r4, r4, high(0x12131415)  ; Carga la parte alta del valor
+	or r21,r0,0x110C
+	st r4,r21,r0;
+	or r5, r0, low(0x16171819)     ; Carga la parte baja del valor 
+	or.u r5, r5, high(0x16171819)  ; Carga la parte alta del valor
+	or r21,r0,0x1110
+	st r5,r21,r0;
+	or r6, r0, low(0x20212223)     ; Carga la parte baja del valor 
+	or.u r6, r6, high(0x20212223)  ; Carga la parte alta del valor
+	or r21,r0,0x1114
+	st r6,r21,r0;
+	or r7, r0, low(0x24252627)     ; Carga la parte baja del valor 
+	or.u r7, r7, high(0x24252627)  ; Carga la parte alta del valor
+	or r21,r0,0x1118
+	st r7,r21,r0;
+	or r9, r0, low(0x28293031)     ; Carga la parte baja del valor 
+	or.u r9, r9, high(0x28293031)  ; Carga la parte alta del valor
+	or r21,r0,0x111C
+	st r9,r21,r0;
+	or r10, r0, low(0x32333435)     ; Carga la parte baja del valor 
+	or.u r10, r10, high(0x32333435)  ; Carga la parte alta del valor
+	or r21,r0,0x1120
+	st r10,r21,r0;
+	or r4,r0,r0
+	addu r4,r4,47
+	or r21,r0,0x1100
+	PUSH (r4) ; NumBit
+	PUSH (r21) ; dirZonaCB
+	bsr LeeBit; 
+	addu r30, r30, 8 
+	or r4,r0,r0
+	addu r4,r4,269
+	or r21,r0,0x1100
+	PUSH (r4) ; NumBit
+	PUSH (r21) ; dirZonaCB
+	bsr LeeBit; 
+	addu r30, r30, 8
+	stop
+	
+org 0x6000
+;PRUEBA Comprime
+ppalC:
+	or r30 , r0, 0x9000
+	or r31, r30, r30
+	
+	or r1, r0, low(0x33323130)   
+	or.u r1, r1, high(0x33323130)
+	or r21,r0,0x1200
+	st r1,r21,r0
+	or r2, r0, low(0x37363534)   
+	or.u r2, r2, high(0x37363435)
+	or r21,r0,0x1204
+	st r2,r21,r0
+	or r3, r0, low(0x5A003938)   
+	or.u r3, r3, high(0x5A003938)
+	or r21,r0,0x1208
+	st r3,r21,r0
+	
+	or r22,r0,0x1200
+	or r20,r0,0x1250
+	PUSH(r20)
+	PUSH(r22)
+	bsr Comprime
+	
+	addu r30, r30, 8
+	stop
+
+org 0x6500
+;PRUEBA Comprime2	
+ppalC2:
+ or r30, r0, 0x9000
+ or r31, r30, r30
+
+ or r1, r0, low(0x73657274)   
+ or.u r1, r1, high(0x73657274)
+ or r21, r0, 0x1300
+ st r1, r21, r0
+
+ or r2, r0, low(0x69727420)   
+ or.u r2, r2, high(0x69727420)
+ or r21, r0, 0x1304
+ st r2, r21, r0
+
+ or r3, r0, low(0x73657473)   
+ or.u r3, r3, high(0x73657473)
+ or r21, r0, 0x1308
+ st r3, r21, r0
+
+ or r4, r0, low(0x67697420)
+ or.u r4, r4, high(0x67697420)
+ or r21, r0, 0x130C
+ st r4, r21, r0
+
+ or r4, r0, low(0x20736572)
+ or.u r4, r4, high(0x20736572)
+ or r21, r0, 0x1310
+ st r4, r21, r0
+
+ or r5, r0, low(0x656D6F63)
+ or.u r5, r5, high(0x656D6F63)
+ or r21, r0, 0x1314
+ st r5, r21, r0
+
+ or r6, r0, low(0x7274206E)
+ or.u r6, r6, high(0x7274206E)
+ or r21, r0, 0x1318
+ st r6, r21, r0
+
+ or r7, r0, low(0x206F6769)
+ or.u r7, r7, high(0x206F6769)
+ or r21, r0, 0x131C
+ st r7, r21, r0
+
+ or r8, r0, low(0x75206E65)
+ or.u r8, r8, high(0x75206E65)
+ or r21, r0, 0x1320
+ st r8, r21, r0
+
+ or r9, r0, low(0x7274206E)
+ or.u r9, r9, high(0x7274206E)
+ or r21, r0, 0x1324
+ st r9, r21, r0
+
+ or r10, r0, low(0x6C616769)
+ or.u r10, r10, high(0x6C616769)
+ or r21, r0, 0x1328
+ st r10, r21, r0
+
+ or r11, r0, low(0x6C65202C)
+ or.u r11, r11, high(0x6C65202C)
+ or r21, r0, 0x132C
+ st r11, r21, r0
+
+ or r12, r0, low(0x69727020)
+ or.u r12, r12, high(0x69727020)
+ or r21, r0, 0x1330
+ st r12, r21, r0
+
+ or r13, r0, low(0x2072656D)
+ or.u r13, r13, high(0x2072656D)
+ or r21, r0, 0x1334
+ st r13, r21, r0
+
+ or r14, r0, low(0x72676974)
+ or.u r14, r14, high(0x72676974)
+ or r21, r0, 0x1338
+ st r14, r21, r0
+
+ or r15, r0, low(0x75712065)
+ or.u r15, r15, high(0x75712065)
+ or r21, r0, 0x133C
+ st r15, r21, r0
+
+ or r16, r0, low(0x2E2E2E65)
+ or.u r16, r16, high(0x2E2E2E65)
+ or r21, r0, 0x1340
+ st r16, r21, r0
+
+ or r20, r0, 0x1300
+ or r21, r0, 0x1350
+ PUSH(r21)
+ PUSH(r20)
+ bsr Comprime
+
+ addu r30, r30, 8
+ stop
+ 
+ org 0x7000
+;PRUEBA Descomprime	
+ppalD:
+	or r30, r0, 0x9000
+	or r31, r30, r30
+
+	or r1, r0, low(0x07010014)   
+	or.u r1, r1, high(0x07010014)
+	or r21,r0,0x1400
+	st r1,r21,r0
+	or r2, r0, low(0x30000000)   
+	or.u r2, r2, high(0x30000000)
+	or r21,r0,0x1404
+	st r2,r21,r0
+	or r3, r0, low(0x34333231)   
+	or.u r3, r3, high(0x34333231)
+	or r21,r0,0x1408
+	st r3,r21,r0
+	or r4, r0, low(0x38373635)   
+	or.u r4, r4, high(0x38373635)
+	or r21,r0,0x140C
+	st r4,r21,r0
+	or r4, r0, low(0x37383939)   
+	or.u r4, r4, high(0x37383939)
+	or r21,r0,0x1410
+	st r4,r21,r0
+	or r5, r0, low(0x33343536)   
+	or.u r5, r5, high(0x33343536)
+	or r21,r0,0x1414
+	st r5,r21,r0
+	or r6, r0, low(0x00303132)   
+	or.u r6, r6, high(0x00303132)
+	or r21,r0,0x1418
+	st r6,r21,r0
+	
+	or r20,r0,0x1400
+	or r21,r0,0x1450
+	PUSH(r21)
+	PUSH (r20)
+	bsr Descomprime
+	
+	addu r30, r30, 8
+	stop
+	
+org 0x7500
+;PRUEBA Descomprime2	
+ppalD2:
+ or r30, r0, 0x9000
+ or r31, r30, r30
+
+ or r1, r0, low(0x0b010044)   
+ or.u r1, r1, high(0x0b010044)
+ or r21, r0, 0x1500
+ st r1, r21, r0
+
+ or r2, r0, low(0x10102400)   
+ or.u r2, r2, high(0x10102400)
+ or r21, r0, 0x1504
+ st r2, r21, r0
+
+ or r3, r0, low(0x74004000)   
+ or.u r3, r3, high(0x74004000)
+ or r21, r0, 0x1508
+ st r3, r21, r0
+
+ or r4, r0, low(0x20736572)   
+ or.u r4, r4, high(0x20736572)
+ or r21, r0, 0x150C
+ st r4, r21, r0
+
+ or r4, r0, low(0x73697274)
+ or.u r4, r4, high(0x73697274)
+ or r21, r0, 0x1510
+ st r4, r21, r0
+
+ or r5, r0, low(0x04000274)
+ or.u r5, r5, high(0x04000274)
+ or r21, r0, 0x1514
+ st r5, r21, r0
+
+ or r6, r0, low(0x00016769)
+ or.u r6, r6, high(0x00016769)
+ or r21, r0, 0x1518
+ st r6, r21, r0
+
+ or r7, r0, low(0x6d6f6304)
+ or.u r7, r7, high(0x6d6f6304)
+ or r21, r0, 0x151C
+ st r7, r21, r0
+
+ or r8, r0, low(0x00046e65)
+ or.u r8, r8, high(0x00046e65)
+ or r21, r0, 0x1520
+ st r8, r21, r0
+
+ or r9, r0, low(0x206f6704)
+ or.u r9, r9, high(0x206f6704)
+ or r21, r0, 0x1524
+ st r9, r21, r0
+
+ or r10, r0, low(0x75206e65)
+ or.u r10, r10, high(0x75206e65)
+ or r21, r0, 0x1528
+ st r10, r21, r0
+
+ or r11, r0, low(0x61060018)
+ or.u r11, r11, high(0x61060018)
+ or r21, r0, 0x152C
+ st r11, r21, r0
+
+ or r12, r0, low(0x65202c6c)
+ or.u r12, r12, high(0x65202c6c)
+ or r21, r0, 0x1530
+ st r12, r21, r0
+
+ or r13, r0, low(0x7270206c)
+ or.u r13, r13, high(0x7270206c)
+ or r21, r0, 0x1534
+ st r13, r21, r0
+
+ or r14, r0, low(0x72656d69)
+ or.u r14, r14, high(0x72656d69)
+ or r21, r0, 0x1538
+ st r14, r21, r0
+
+ or r15, r0, low(0x2006000c)
+ or.u r15, r15, high(0x2006000c)
+ or r21, r0, 0x153C
+ st r15, r21, r0
+
+ or r16, r0, low(0x2e657571)
+ or.u r16, r16, high(0x2e657571)
+ or r21, r0, 0x1540
+ st r16, r21, r0
+
+ or r17, r0, low(0x00002e2e)
+ or.u r17, r17, high(0x00002e2e)
+ or r21, r0, 0x1544
+ st r17, r21, r0
+
+ or r20, r0, 0x1500
+ or r21, r0, 0x1550
+ PUSH(r21)
+ PUSH(r20)
+ bsr Descomprime
+
+ addu r30, r30, 8
+ stop
+ 
+ org 0x8000
+;PRUEBA Verifica
+ppalV:
+	or r30 , r0, 0x9000
+	or r31, r30, r30
+	
+	or r1, r0, low(0x33323130)   
+	or.u r1, r1, high(0x33323130)
+	or r21,r0,0x1600
+	st r1,r21,r0
+	or r2, r0, low(0x37363534)   
+	or.u r2, r2, high(0x37363435)
+	or r21,r0,0x1604
+	st r2,r21,r0
+	or r3, r0, low(0x5A003938)   
+	or.u r3, r3, high(0x5A003938)
+	or r21,r0,0x1608
+	st r3,r21,r0
+	
+	or r22,r0,0x1600
+	or r20,r0,0x1650
+	or r21,r0,0x1654
+	PUSH(r21)
+	PUSH(r20)
+	PUSH(r22)
+	bsr Verifica
+
+	addu r30, r30, 12
+	stop
+
+org 0x8500
+ ;PRUEBA Verifica2	
+ppalV2:
+ or r30, r0, 0x9000
+ or r31, r30, r30
+
+ or r1, r0, low(0x73657274)   
+ or.u r1, r1, high(0x73657274)
+ or r21, r0, 0x1700
+ st r1, r21, r0
+
+ or r2, r0, low(0x69727420)   
+ or.u r2, r2, high(0x69727420)
+ or r21, r0, 0x1704
+ st r2, r21, r0
+
+ or r3, r0, low(0x73657473)   
+ or.u r3, r3, high(0x73657473)
+ or r21, r0, 0x1708
+ st r3, r21, r0
+
+ or r4, r0, low(0x67697420)
+ or.u r4, r4, high(0x67697420)
+ or r21, r0, 0x170C
+ st r4, r21, r0
+
+ or r4, r0, low(0x20736572)
+ or.u r4, r4, high(0x20736572)
+ or r21, r0, 0x1710
+ st r4, r21, r0
+
+ or r5, r0, low(0x656D6F63)
+ or.u r5, r5, high(0x656D6F63)
+ or r21, r0, 0x1714
+ st r5, r21, r0
+
+ or r6, r0, low(0x7274206E)
+ or.u r6, r6, high(0x7274206E)
+ or r21, r0, 0x1718
+ st r6, r21, r0
+
+ or r7, r0, low(0x206F6769)
+ or.u r7, r7, high(0x206F6769)
+ or r21, r0, 0x171C
+ st r7, r21, r0
+
+ or r8, r0, low(0x75206E65)
+ or.u r8, r8, high(0x75206E65)
+ or r21, r0, 0x1720
+ st r8, r21, r0
+
+ or r9, r0, low(0x7274206E)
+ or.u r9, r9, high(0x7274206E)
+ or r21, r0, 0x1724
+ st r9, r21, r0
+
+ or r10, r0, low(0x6C616769)
+ or.u r10, r10, high(0x6C616769)
+ or r21, r0, 0x1728
+ st r10, r21, r0
+
+ or r11, r0, low(0x6C65202C)
+ or.u r11, r11, high(0x6C65202C)
+ or r21, r0, 0x172C
+ st r11, r21, r0
+
+ or r12, r0, low(0x69727020)
+ or.u r12, r12, high(0x69727020)
+ or r21, r0, 0x1730
+ st r12, r21, r0
+
+ or r13, r0, low(0x2072656D)
+ or.u r13, r13, high(0x2072656D)
+ or r21, r0, 0x1734
+ st r13, r21, r0
+
+ or r14, r0, low(0x72676974)
+ or.u r14, r14, high(0x72676974)
+ or r21, r0, 0x1738
+ st r14, r21, r0
+
+ or r15, r0, low(0x75712065)
+ or.u r15, r15, high(0x75712065)
+ or r21, r0, 0x173C
+ st r15, r21, r0
+
+ or r16, r0, low(0x2E2E2E65)
+ or.u r16, r16, high(0x2E2E2E65)
+ or r21, r0, 0x1740
+ st r16, r21, r0
+
+ or r20, r0, 0x1700
+ or r21, r0, 0x1750
+ or r22, r0, 0x1754
+ PUSH(r22)
+ PUSH(r21)
+ PUSH(r20)
+ bsr Verifica
+
+ addu r30, r30, 12
+ stop
+ 
+LongCad:
+	ld r20,r30,r0 ; se carga la cadena de la pila en r20
+	or r29,r0,r0 ; se inicializa r29 contador
+sig_elem_cadena:
+	ld.bu r21,r20,r0 ;se carga el primer elemnto de la cadena en r21
+	cmp r7,r21,0 
+	bb1 eq,r7,finLC ; si el elemento es 0 la cadena se ha acabado
+	addu r29,r29,1 ; aumenta el contador
+	addu r20,r20,1 ;siguiente elemento de la cadena
+	br sig_elem_cadena
+finLC:
+	jmp (r1)
+	
+BuscaCar:
+	ld r2,r30,12; to
+	ld r3,r30,8; from
+	ld r20,r30,4; ref
+	ld.bu r4,r30,0; C
+	or r6,r3,r3; guarda el from
+	cmp r7,r3,r2
+	bb1 gt,r7,encontrado_to; from es mayor que to 
+	cmp r7,r3,r2
+	bb1 eq,r7,from_to_iguales; si from == to 
+sig_elem_ref:
+	cmp r7,r3,r2; 
+	bb1 ge,r7,encontrado_to; si el numero de caracter es mayor o igual a to encontrado_to
+	ld.bu r21,r20,r3; se carga en r21 la primera posicion
+	cmp r7,r21,0
+	bb1 eq,r7,encontrado_to
+	cmp r7,r21,r4; 
+	bb1 eq,r7,encontrado_C; si el caracter de r21 es igual a C encontrado_C
+	addu r3,r3,1; siguiente caracter de ref
+	br sig_elem_ref
+encontrado_C:
+	or r29,r3,r3 ; inicializa a r29 el numero de caracteres avanzados
+	br finBC ; salta a fin para no inicializar r29 a 0
+encontrado_to:
+	or r29,r2,r2; inicializa en r29 el valor de to
+	br finBC
+from_to_iguales:
+	ld.bu r21,r20,r3; se carga en r21 la primera posicion
+	cmp r7,r21,r4
+	bb1 eq,r7,encontrado_C; si from==to==C devuelve from
+	br encontrado_to
+finBC:
+	jmp(r1)
+	
+CoincidenCad:
+	ld r21,r30,0 ;se carga la cadena2
+	ld r20, r30,4 ; se carga la cadena
+	or r29,r0,r0 ; se inicializa el contador en r29
+bucle:
+	ld.bu r2,r20,0; caracter de cadena
+	ld.bu r3,r21,0; caracter de cadena2
+	cmp r7,r2,0
+	bb1 eq,r7,finCC; si el caracter de cadena es 0 se acaba la cadena --> fin
+	cmp r7,r3,0
+	bb1 eq,r7,finCC; si el caracter de cadena2 es 0 se acaba la cadena --> fin
+	cmp r7,r2,r3
+	bb0 eq,r7,finCC; si los caracteres de cadena y cadena2 no son iguales --> fin
+	addu r29,r29,1 ; en caso de que sean iguales seuma uno al contador
+	addu r20,r20,1; avanza un caracter en cadena
+	addu r21,r21,1; avanza un caracter en cadena2
+	br bucle; repite el bucle 
+finCC:
+	jmp(r1)
+	
+BuscaMax:
+	PUSH (r1)
+	PUSH (r31)
+	or   r31, r30, 0
+	or   r28, r0, 0x32ED
+	PUSH (r28)
+
+	ld   r10, r31, 8;  REF
+	ld   r11, r31, 12; MAX
+	ld   r12, r31, 16; Dir(JJ)
+
+	sub  r5, r0, 1		; guarda -1 en *JJ por si no se
+	st   r5, r12, 0		; encuentran coincidencias
+
+	addu r27, r0, r0  ; P
+	addu r28, r0, r0  ; L
+
+BucBM:
+	ld.bu r20, r10, r11	; C=REF(max)
+
+				; Reserva registros que
+				; necesita conservar
+	PUSH (r28) 	    	; L
+	PUSH (r11)	    	; MAX
+
+	     		    	; Parámetros de BuscaCar
+	PUSH (r27)	    	; P
+	PUSH (r10)	    	; REF
+	PUSH (r20)	   	; C
+	bsr  BuscaCar
+	POP  (r20)
+	POP  (r10)
+	POP  (r27)
+
+	POP  (r11)		; Recupera registros
+	POP  (r28)	        ; salvaguardados
+
+	cmp  r5, r29, r11	; nuevo P es >= MAX ??
+	bb1  hs, r5, finBM
+	addu r27, r29, r0	; P = nuevo P
+	
+	addu r13, r10, r27	; *REF(P)
+	addu r14, r10, r11 	; *REF(max)	
+
+	PUSH (r11)     		; Reserva registros que
+	PUSH (r10)		; necesita conservar
+	PUSH (r28)
+	PUSH (r27)
+	
+	PUSH (r14)		; Parámetros de CoincidenCad
+	PUSH (r13)
+	bsr  CoincidenCad
+	POP  (r13)
+	POP  (r14)
+	
+	POP  (r27)		; Recupera registros
+	POP  (r28)		; salvaguardados
+	POP  (r10)
+	POP  (r11)
+
+	cmp r5, r29, r28	; Comprueba si longitud > L
+	bb1 le, r5, contBM	; Si no lo es, continúa
+	cmp r5, r29, 255	; Comprueba si longitud > 255
+	bb1 le, r5, noLimBM	; Si no lo es, continúa
+	addu r29, r0, 255	; Si lo es, limita su valor a 255
+	
+noLimBM:
+	addu r28, r29, r0	; actualiza L
+	ld   r12, r31, 16	; Dir(JJ)
+	st   r27, r12, r0	; actualiza P en *JJ
+	bb1 ge, r5, finBM	; Si coincidencia >= 255 termina
+contBM: 
+	addu r27, r27, 1	; Pasa al siguiente carácter
+	cmp  r5, r27, r11	; Es P>=max ?
+	bb1  hs, r5, finBM
+	
+	br   BucBM   		; Nueva búsqueda del primer carácter
+
+finBM:
+	addu r29, r28, r0	; asigna L al valor de retorno r29
+	  
+	or   r27, r0, 0x6AF
+	POP  (r28)
+
+	or   r30, r31, 0
+	POP  (r31)
+	POP  (r1)
+	jmp  (r1)
+	
+PoneBitA1:
+    ld r20, r30, 0     ; dirZonaCB   
+    ld r3, r30, 4      ; NumBit       
+
+    divu r5, r3, 8     ; r5 = byte a cambiar (NumBit / 8)
+    and r6, r3, 7      ; r6 = posición del bit en el byte (NumBit % 8)
+
+	or r24,r20,r20 ; puntero al byte a tratar
+comprobar_byte: 
+	cmp r7,r5,4 ; 
+	bb1 le,r7,tratar_byte; si el byte es menor que cuatro se puede tratar
+	subu r5,r5,4; numero de byte del bloque 
+	addu r24,r24,4;muevo cabeza puntero al bloque de bytes
+	br comprobar_byte
+	
+tratar_byte:
+    or r4, r0, 128       ; r4 = 128 r4=80 (10000000) (inicializar la máscara)
+buclePA:
+    cmp r7, r6, 0      ; 
+    bb1 eq, r7, fin_bucle ; Salir del bucle si r6 es 0
+    rot r4,r4,<1>   ; Desplazar máscara a la derecha
+    subu r6, r6, 1     ; decrementa contador de bit
+    br buclePA
+
+fin_bucle:
+    ld.bu r2, r24, r5  ; Cargar el byte correspondiente de la memoria
+    or r2, r2, r4      ; Poner el bit correspondiente
+    st.b r2, r24, r5   ; Guardar el byte modificado en la memoria
+    jmp (r1)           
+	
+Comprime:
+	PUSH(r1)
+	PUSH(r31)
+	or r31,r30,r0;
+	subu r30,r30,32; marco de pila para que funcione verifica
+	
+	ld r20,r31,8; texto
+	ld r21,r31,12; comprdo
+	
+	PUSH(r21)
+	PUSH(r20)
+	bsr LongCad
+	POP(r20);recupero direccion texto
+	POP(r21)
+	
+	st r29,r31,-8; guardo longitud en la pila
+	or r24,r30,4; jj se guarda en la pila
+	
+	divu r2,r29,4; long multiplo de 4?
+	mulu r4,r2,4
+	cmp r7,r29,r4
+	bb1 eq,r7,mul4; es multiplo de 4
+	add r3,r2,1; ahora es multiplo de 4
+	mulu r4,r3,4 
+mul4:
+	subu r30,r30,r4; marco de pila long r20
+	
+	or r6,r0,r0; contador caracteres texto
+	or r5,r0,r0; contador mapabits
+	or r4,r0,r0; contador caracteres pilazona3
+	or r10,r0,r0; bit a tratar 
+	
+	or r22,r30,r4; puntero a pilazona3 
+	addu r23,r21,5;puntero mapa de bits
+	addu r5,r5,1; avanza contador mapaits primer byte de mapabits
+	
+	addu r8,r0,8;primeros 8 caracteres
+primeros_8caracteres:
+	cmp r7,r8,0
+	bb1 eq,r7,tratar_bits
+	ld.bu r2,r20,r6; carga caracter texto
+	st.b r2,r22,r4; guarda en zona3
+	addu r6,r6,1; avanza contador texto
+	addu r4,r4,1; avanza contador pilazona3
+	subu r8,r8,1; resta 1 al contador de los 8 caracteres 
+	br primeros_8caracteres
+	
+tratar_bits:
+	;ld.bu r2,r20,r6; carga caracter del texto
+	ld r28,r31,-8
+	cmp r7,r6,r28
+	bb1 eq,r7,crear_cabecera
+	
+	PUSH(r4); salvamos los contadores
+	PUSH(r5)
+	PUSH(r8)
+	PUSH(r21)
+	PUSH(r22)
+	PUSH(r23)
+	PUSH(r10)
+	
+	PUSH(r24)
+	PUSH(r6)
+	PUSH(r20)
+	
+	bsr BuscaMax ;en r24 el desplazamiento desde r20,r6 hasta la subcadena (P) en r29 su longitud (L)
+	
+	POP(r20)
+	POP(r6)
+	POP(r24)
+	POP(r10)
+	POP(r23)
+	POP(r22)
+	POP(r21)
+	POP(r8)
+	POP(r5)
+	POP(r4)
+	
+	ld r11,r31,-28 ;jj 
+	
+	cmp r7,r29,4
+	bb1 hs,r7,mayor4 ; si la longitud es mayor o igual 
+	
+	ld.bu r2,r20,r6; carga caracter
+	st.b r2,r22,r4; copiamos en pilazona3
+	addu r6,r6,1; avanza contador texto
+	addu r4,r4,1; avanza contador pilazona3
+	
+	cmp r7,r10,7
+	bb1 eq,r7,siguiente_byte_mapabits; si bit a analizado es 7 cambiar de byte  
+	addu r10,r10,1; siguiente bit
+	br tratar_bits
+	
+siguiente_byte_mapabits:
+	or r10,r0,r0; bit a 0 otra vez
+	addu r5,r5,1; avanza contador mapaits
+	addu r23,r23,1; apunta al siguinete byte del mapa de bits
+	br tratar_bits
+	
+mayor4:
+	st.b r11,r22,r4;(P)
+	addu r4,r4,1
+	addu r4,r4,1; avanza el contador comprdo dos veces pq ocupa dos bytes
+	st.b r29,r22,r4;(L)
+	addu r4,r4,1; avanza el contador comprdo
+	addu r6,r6,r29; vanza el contador de texto (L) 
+
+	PUSH(r4); salvamos los contadores
+	PUSH(r5)
+	PUSH(r6)
+	PUSH(r8)
+	PUSH(r20)
+	PUSH(r21)
+	PUSH(r22)
+	PUSH(r24)
+	
+	PUSH(r10)
+	PUSH(r23)
+	bsr PoneBitA1 ; pone el bit a 1 en el mapa de bits 
+	
+	POP(r23); se recuperan los registros
+	POP(r10)
+	POP(r24)
+	POP(r22)
+	POP(r21)
+	POP(r20)
+	POP(r8)
+	POP(r6)
+	POP(r5)
+	POP(r4)
+	
+	cmp r7,r10,7
+	bb1 eq,r7,siguiente_byte_mapabits
+	addu r10,r10,1 ;siguiente bit
+	br tratar_bits
+	
+crear_cabecera:
+	ld r28,r31,-8; longitud texto 
+	and r6,r28,0xFF; byte bajo de r5 a r6
+	st.b r6,r21,0;byte bajo del numero del mapa de bits al byte 3 de cab
+	divu r6,r28,256;desplazamiento al byte alto
+	and r6,r6,0xFF; byte alto de r5 a r6
+	st.b r6,r21,1;byte alto del numero del mapa de bits al byte 4 de cab
+	addu r27,r0,1
+	st.b r27,r21,2; 0x01 en byte 2
+	addu r5,r5,5; bytes del mapa de bits + bytes de cab
+	and r6,r5,0xFF; byte bajo de r5 a r6
+	st.b r6,r21,3;byte bajo del numero del mapa de bits al byte 3 de cab
+	divu r6,r5,256;desplazamiento al byte alto
+	and r6,r6,0xFF; byte alto de r5 a r6
+	st.b r6,r21,4;byte alto del numero del mapa de bits al byte 4 de cab
+
+	or r9,r0,r0;contador para pasar de pila a zona 3(descargar)
+de_pila_a_zona3:
+	cmp r7,r9,r4
+	bb1 gt,r7,finC; si el byte de la pila es mayor que la longitud reservada para la zona3 pila ya esta cargada entera en zona 3
+	ld.bu r2,r30,r9;carga el byte de la pila
+	st.b r2,r21,r5; carga primer caracter despues de mapabits
+	addu r9,r9,1; siguiente caracter
+	addu r5,r5,1; siguinete byte de zona 3
+	br de_pila_a_zona3
+	
+finC:
+	or r29,r5,r5; carga en r29 cab+mapabits+zona3
+	subu r29,r29,1; ajusta la longitud
+	or r30,r31,r31; devulve r30 a su posicion original
+	POP(r31)
+	POP(r1)
+	jmp(r1)
+
+LeeBit:
+    ld r20, r30, 0     ; dirZonaCB   
+    ld r3, r30, 4     ; NumBit        
+
+    divu r5, r3, 8     ; r5 = byte a procesar (NumBit / 8)
+    and r6, r3, 7      ; r6 = posición del bit en el byte (NumBit % 7)
+
+	or r24,r20,r20; puntero al byte a tratar
+comprobar_b: 
+	cmp r7,r5,4
+	bb1 le,r7,tratar_byteLB; si el byte es menor que 4 se puede tratar
+	subu r5,r5,4; numero de byte del bloque 
+	addu r24,r24,4;muevo cabeza puntero al bloque de bytes
+	br comprobar_b
+
+tratar_byteLB:
+
+    or r4, r0, 128     ; r4 = 80 (10000000) (inicializar la máscara)
+bucleLB:
+    cmp r7, r6, 0      ; 
+    bb1 eq, r7, fin_bucleLB ; Salir del bucle si r6 es 0
+    rot r4,r4,<1>    ; Desplazar máscara a la derecha 
+    subu r6, r6, 1     ; decrementa contador del bit
+    br bucleLB
+
+fin_bucleLB:
+    ld.bu r2, r24, r5  ; Cargar el byte correspondiente de la memoria
+    and r29, r2, r4    ; Aplicar la máscara para extraer el bit deseado
+    divu r29, r29, r4  ; Normalizar el bit a 0 o 1 en r29
+    jmp (r1)           
+	
+Descomprime:
+	PUSH(r1)
+	PUSH(r31)
+	or r31,r30,r0
+	
+	ld r20,r30,8;com 
+	ld r21,r30,12;desc
+	
+	ld.bu r2,r20,0; byte bajo long original
+	ld.bu r3,r20,1; byte alto long original
+	mulu r3,r3,256
+	addu r28,r2,r3; longitud original (cab)
+	
+	ld.bu r2,r20,3; byte bajo com
+	ld.bu r3,r20,4; byte alto com
+	mulu r3,r3,256;
+	addu r5,r2,r3; numero de bytes del mapa de bits
+	
+	or r6,r0,r0; contador comp
+	or r4,r0,r0; contador desc
+	or r10,r0,r0; 
+	;addu r10,r10,0; bit a analizar
+	or r8,r0,r0; byte a analizar 
+	
+	addu r22,r20,r5; puntero al texto comprimido
+	or r23,r20,r20; puntero mapa de bits
+	or r8,r0,r0;contador bytes del mapa
+	addu r8,r8,5; apunta al siguiente byte
+	addu r9,r23,r8;primer byte del mapa
+	addu r8,r8,1; apunta al siguiente byte
+	
+bucle_primeros_caracteres: ; primeros 8 caracteres del texto comprimido en desc
+
+	cmp r7,r4,8
+	bb1 eq,r7,comprobar_bits; si contador desc == 8 los primeros 8 caracteres ya estan copiados
+	ld.bu r11,r22,r6; elem texto comprimido
+	st.b r11,r21,r4; almacena en desc
+	addu r6,r6,1;avanza contador comp
+	addu r4,r4,1;avanza contador desc
+	br bucle_primeros_caracteres
+
+comprobar_bits: ;comoprueba si se han copiado todos los bits
+	
+	cmp r7,r4,r28
+	bb1 eq,r7,finDC; si el contador es igual a la longitud del texto original fin ya se han copiado todos los elementos de com
+	
+	or r17,r10,r10 ; se analiza el bit nºr10
+	
+	PUSH(r20); se salvan los registros que se utilizan en LeeBit
+	PUSH(r22)
+	PUSH(r10)
+	PUSH(r8)
+	PUSH(r6)
+	PUSH(r5)
+	PUSH(r2)
+	PUSH(r4)
+	PUSH(r17)
+	PUSH(r9)
+	bsr LeeBit; en r29 1 ó 0
+	POP(r9); se recuperan los registros que se utilizan en LeeBit
+	POP(r17)
+	POP(r4)
+	POP(r2)
+	POP(r5)
+	POP(r6)
+	POP(r8)
+	POP(r10)
+	POP(r22)
+	POP(r20)
+	
+	cmp r7,r10,7
+	bb1 ne,r7,no_ultimo_bit
+	or r10,r0,r0; se vuelve a apuntar al primer bit del byte
+	addu r9,r23,r8; carga siguinete byte
+	addu r8,r8,1; apunta al siguinete byte 
+	br continua 
+	
+continua:
+	cmp r7,r29,0
+	bb1 eq,r7,r29_0; si r29 0 el bit es 0
+	br r29_1
+
+no_ultimo_bit:
+	addu r10,r10,1
+	br continua
+
+r29_0:
+	ld.bu r11,r22,r6;caracter text comprimido
+	st.b r11,r21,r4; almacena en desc
+	addu r6,r6,1; avanza el contador de comp
+	addu r4,r4,1; avanza el contador de desc
+	br comprobar_bits
+	
+r29_1:
+	ld.bu r13,r22,r6;caracter texto comprimido byte bajo
+	addu r6,r6,1;avanza el contador de comp
+	ld.bu r14,r22,r6;caracter texto comprimido byte alto
+	mulu r14,r14,256; se coloca el byte alto
+	addu r13,r13,r14; byte completo (desplazamiento)
+	addu r6,r6,1;avanza el contador de comp
+	ld.bu r14,r22,r6; longitud
+	addu r6,r6,1;
+	
+cmprdo_a_desc:
+	cmp r7,r14,0 
+	bb1 eq,r7,comprobar_bits ;si es 0 sigueinet bit
+	ld.bu r11,r21,r13 ; carga caracter de comp
+	st.b r11,r21,r4 ; almacena en desc
+	addu r13,r13,1 ; siguiente caracter
+	addu r4,r4,1; avanza contador desc
+	subu r14,r14,1; resta 1 a la longitud
+	br cmprdo_a_desc
+	
+finDC:
+	or r29,r28,0; longitud original r29
+	st.b r0,r20,r4;la cadena termina en 0
+	
+	or r30,r31,0
+	POP(r31)
+	POP(r1)
+	jmp(r1)
+	
+Verifica:
+	PUSH(r1)
+	PUSH(r31)
+	or r31,r30,r0
+	
+	ld r20,r31,8; texto
+	PUSH(r20)
+	bsr LongCad ; r29 LO
+	POP(r20)
+	
+	ld r21,r31,12; long1
+	st r29,r21,r0; se guarda long del texto en long1
+	
+	add r3,r29,5  ;  LO+5     
+    add r4,r29,7  ;  LO+7     
+    divu r4,r4,8  ;      
+    sub r4,r4,1  ;       
+    add r5,r3,r4  ; LO+5 + (LO+7)/8 -1    
+    divu r6,r5,4  ;   
+    mulu r8,r6,4   ;     
+    sub r9,r5,r8  ;    
+    cmp r7,r9,0  ;    
+    bb1 eq,r7,multiplo4  ; si es multiplo de 4 r9=0 
+    add r6,r6,1  ;   
+    mulu r5,r6,4  ; se ajusta para ser multiplo de 4
+multiplo4:
+	subu r30,r30,r5; pilaCom
+	or r24,r30,0;puntero pilaCom
+	
+	divu r10,r29,4  ;    
+    mulu r11,r10,4  ;    
+    sub r12,r29,r11  ;     
+    cmp r7,r12,0  ;    
+    bb1 eq,r7,mult4 ; si es multiplo de 4 r12=0    
+    add r10,r10,1  ; Si no, sumamos uno al cociente   
+    mulu r29,r10,4  ; Y multiplicamos por 4 para realizar el ajuste  
+ mult4:  
+	subu r30,r30,r29 ; PilaDes
+	or r25,r30,r0; puntero pilaDes
+	
+	PUSH(r25)
+	PUSH(r21)
+	
+	PUSH(r24)
+	PUSH(r20)
+	bsr Comprime ;comprime el texto y lo guarda en pilacom
+	POP(r20)
+	POP(r24)
+	
+	POP(r21)
+	POP(r25)
+	
+	PUSH(r20)
+	PUSH(r21)
+	
+	PUSH(r25)
+	PUSH(r24)
+	bsr Descomprime ; descomprime pilacom y lo guarda en pilades
+	POP(r24)
+	POP(r25)
+	
+	POP(r21)
+	POP(r20)
+	
+	ld r23,r31,16; long2
+	st r29,r23,r0; longitud descomprimido en long2
+	
+	ld r2,r21,r0; LO
+	cmp r7,r2,r29
+	bb1 ne,r7,diferente; si no coinciden las longitudes
+	PUSH(r2)
+	
+	PUSH(r25)
+	PUSH(r20)
+	bsr CoincidenCad
+	POP(r20)
+	POP(r25)
+	
+	POP(r2)
+	
+	cmp r7,r2,r29
+	bb1 ne,r7,diferente2;se compara long con long1
+	ld r3,r23,r0
+	cmp r7,r3,r29  ; se compara long con long2  
+    bb1 ne,r7,diferente2 ; Si son iguales no se realiza el salto   
+    or r29,r0,0  ; cadenas coinciden   
+    br finV        
+diferente:  
+	sub r29,r0,-1  ; longitud no coincide  
+	br finV       
+diferente2:  
+	sub r29,r0,-2  ; diferente contenido 
+finV:  
+	or r30,r31,0         
+    POP(r31)         
+    POP(r1)         
+    jmp(r1)  
