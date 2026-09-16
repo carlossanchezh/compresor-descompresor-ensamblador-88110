@@ -1,4 +1,4 @@
-# Compresión y descompresión en ensamblador
+# Compresión y descompresión en ensamblador 88110
 
 ## Descripción
 Proyecto desarrollado en **ensamblador para el Motorola 88110** que implementa un sistema de compresión y descompresión de cadenas de texto sin pérdidas.
@@ -52,10 +52,15 @@ Los procesos principales del proyecto son:
 
 Lenguaje ensamblador en arquitectura **Motorola 88110**
 
-## Estructura del proyecto 
+## Estructura del proyecto
 
 ```plaintext
 .
-├── CDV25.ens  # Código fuente del proyecto en ensamblador. 
-└── README.md
+├── CDV25.ens  # Código fuente del proyecto en ensamblador.
+├── INSTRUCTIONS.md # Instrucciones de instalación y ejecución del proyecto
+└── README.md # Descripción del proyecto
 ```
+
+## Instalación y ejecución
+
+Ver [INSTRUCTIONS.md](INSTRUCTIONS.md)
